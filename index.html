@@ -1,689 +1,744 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BudgetQuest</title>
-  <meta name="description" content="Gère tes dépenses et tes missions du jour" />
-  <meta name="theme-color" content="#7F77DD" />
-  <link rel="manifest" href="manifest.json" />
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #0F0F13;
-      color: #F0F0F5;
-      min-height: 100vh;
-    }
-    #root { max-width: 430px; margin: 0 auto; padding-bottom: 80px; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>BudgetQuest</title>
+<meta name="theme-color" content="#3B153A"/>
+<link rel="manifest" href="manifest.json"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --plum:#3B153A;--plum2:#521850;--gold:#F0C987;--cream:#FFFOBA;
+  --dark:#111808;--dark2:#1A2010;--dark3:#222C18;
+  --green:#4A7C59;--red:#C0392B;--blue:#2980B9;--orange:#E67E22;
+  --text:#F0C987;--text2:#B8A87A;--text3:#7A6A4A;
+  --border:#4A2848;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--dark);color:var(--text);min-height:100vh}
+#app{max-width:420px;margin:0 auto;padding-bottom:72px}
 
-    .nav {
-      display: flex;
-      background: #1A1A24;
-      border-top: 1px solid #2A2A3A;
-      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 100%; max-width: 430px; z-index: 100;
-    }
-    .nav-btn {
-      flex: 1; padding: 10px 0 8px; border: none; background: transparent;
-      cursor: pointer; font-size: 10px; color: #888; display: flex;
-      flex-direction: column; align-items: center; gap: 3px;
-    }
-    .nav-btn.active { color: #7F77DD; }
-    .nav-btn span.icon { font-size: 18px; }
+/* NAV */
+.nav{display:flex;background:var(--plum);border-top:1px solid var(--border);position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;z-index:100}
+.nb{flex:1;padding:10px 0 8px;border:none;background:transparent;cursor:pointer;font-size:9px;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:2px}
+.nb.on{color:var(--gold)}
+.nb .ic{font-size:18px}
 
-    .page { padding: 1rem; display: none; }
-    .page.active { display: block; }
+/* PAGES */
+.pg{padding:0 14px 14px;display:none}
+.pg.on{display:block}
 
-    .card {
-      background: #1A1A24; border: 1px solid #2A2A3A;
-      border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 12px;
-    }
-    .sec-title {
-      font-size: 11px; font-weight: 600; color: #888;
-      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px;
-    }
-    .input, .select {
-      width: 100%; padding: 9px 12px; border-radius: 10px;
-      border: 1px solid #2A2A3A; background: #0F0F13; color: #F0F0F5;
-      font-size: 14px; margin-bottom: 8px;
-    }
-    .btn {
-      padding: 10px 18px; border-radius: 10px; border: none;
-      background: #7F77DD; color: #fff; font-size: 14px;
-      font-weight: 500; cursor: pointer; transition: opacity .2s;
-    }
-    .btn:hover { opacity: .85; }
-    .btn.green { background: #1D9E75; }
-    .btn.red { background: #E24B4A; }
-    .btn.gray { background: #555; }
+/* CARDS */
+.card{background:var(--dark2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px}
+.card-hero{background:linear-gradient(135deg,var(--plum),var(--plum2));border:none;border-radius:16px;padding:20px;margin-bottom:12px}
 
-    .progress-track {
-      height: 7px; background: #2A2A3A; border-radius: 99px; overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%; border-radius: 99px; transition: width .4s;
-    }
+/* LABELS */
+.sec{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+.big{font-size:26px;font-weight:700;color:var(--gold)}
+.med{font-size:18px;font-weight:600;color:var(--text)}
+.sub{font-size:12px;color:var(--text2);margin-top:2px}
 
-    .level-card {
-      background: #1A1240; border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 12px;
-    }
-    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-    .stat-box {
-      background: #0F0F13; border-radius: 10px; padding: 12px 14px;
-    }
-    .stat-box .val { font-size: 20px; font-weight: 500; margin: 4px 0 2px; }
-    .stat-box .lbl { font-size: 11px; color: #888; }
+/* INPUTS */
+input,select{width:100%;padding:10px 13px;border-radius:10px;border:1px solid var(--border);background:var(--dark3);color:var(--gold);font-size:14px;margin-bottom:8px;outline:none}
+input::placeholder{color:var(--text3)}
+input:focus,select:focus{border-color:var(--gold)}
+select option{background:var(--dark2);color:var(--gold)}
 
-    .task-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .checkbox {
-      width: 22px; height: 22px; border-radius: 6px;
-      border: 1.5px solid #2A2A3A; background: transparent;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; flex-shrink: 0;
-    }
-    .checkbox.done { background: #7F77DD; border: none; }
+/* BUTTONS */
+.btn{padding:11px 18px;border-radius:10px;border:none;cursor:pointer;font-size:14px;font-weight:600;transition:opacity .2s}
+.btn:hover{opacity:.85}
+.btn-gold{background:var(--gold);color:var(--dark)}
+.btn-outline{background:transparent;border:1px solid var(--gold);color:var(--gold)}
+.btn-red{background:var(--red);color:#fff}
+.btn-full{width:100%}
 
-    .dep-row {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 0; border-bottom: 1px solid #2A2A3A;
-    }
-    .cat-icon {
-      width: 36px; height: 36px; border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px; flex-shrink: 0;
-    }
-    .del-btn {
-      background: none; border: none; cursor: pointer;
-      color: #555; font-size: 20px; padding: 0 4px;
-    }
-    .toast {
-      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
-      padding: 10px 20px; border-radius: 99px; font-size: 13px;
-      font-weight: 500; color: #fff; z-index: 999; white-space: nowrap;
-      display: none;
-    }
-    .badge {
-      display: inline-flex; align-items: center; gap: 4px;
-      background: #2D1A00; color: #EF9F27; font-size: 12px;
-      font-weight: 500; padding: 4px 12px; border-radius: 99px;
-    }
-    .install-step { display: flex; gap: 8px; margin-bottom: 4px; align-items: flex-start; }
-    .install-num { font-size: 11px; color: #7F77DD; font-weight: 600; min-width: 16px; }
-    .install-text { font-size: 12px; color: #888; }
-    .cur-btn {
-      padding: 10px; border-radius: 10px; cursor: pointer;
-      border: 1px solid #2A2A3A; background: #0F0F13;
-      text-align: left; color: #F0F0F5;
-    }
-    .cur-btn.active { border: 2px solid #7F77DD; background: #1A1240; }
-    .cur-btn .cur-sym { font-size: 15px; font-weight: 500; }
-    .cur-btn .cur-name { font-size: 11px; color: #888; }
-    .cur-btn.active .cur-name { color: #AFA9EC; }
-    .tag-actuel {
-      font-size: 11px; background: #EEEDFE; color: #534AB7;
-      padding: 2px 8px; border-radius: 99px; font-weight: 500;
-    }
-    .row-between { display: flex; justify-content: space-between; align-items: center; }
-    .notif-dot {
-      width: 8px; height: 8px; border-radius: 50%; background: #1D9E75;
-      display: inline-block; margin-right: 6px;
-    }
-    select option { background: #1A1A24; }
-  </style>
+/* PROGRESS */
+.track{height:8px;background:var(--dark3);border-radius:99px;overflow:hidden;margin-top:6px}
+.fill{height:100%;border-radius:99px;transition:width .5s}
+
+/* CHECKBOX */
+.chk{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.chk.done{background:var(--gold);border:none}
+
+/* MOOD BUTTONS */
+.mood-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.mood-btn{padding:7px 14px;border-radius:99px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-size:13px;cursor:pointer}
+.mood-btn.on{border-color:var(--gold);color:var(--gold);background:rgba(240,201,135,.1)}
+
+/* ENERGY */
+.nrg-row{display:flex;gap:8px}
+.nrg{width:36px;height:36px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.nrg.on{background:var(--gold);color:var(--dark);border:none}
+
+/* DEP ROWS */
+.dep-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.cat-dot{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+
+/* STATS GRID */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.sbox{background:var(--dark3);border-radius:12px;padding:13px}
+.sbox .lbl{font-size:11px;color:var(--text2)}
+.sbox .val{font-size:20px;font-weight:700;margin:4px 0 2px}
+.sbox .unit{font-size:11px;color:var(--text2)}
+
+/* TABS (sub) */
+.stabs{display:flex;gap:8px;margin-bottom:14px}
+.stab{padding:8px 16px;border-radius:99px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-size:13px;cursor:pointer;font-weight:500}
+.stab.on{background:var(--gold);color:var(--dark);border:none}
+
+/* BAR CHART */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bar-label{font-size:13px;color:var(--text);width:90px;flex-shrink:0}
+.bar-track{flex:1;height:10px;background:var(--dark3);border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px}
+.bar-val{font-size:12px;font-weight:600;color:var(--gold);min-width:80px;text-align:right}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:99px;font-size:12px;font-weight:600}
+.badge-gold{background:rgba(240,201,135,.15);color:var(--gold)}
+.badge-green{background:rgba(74,124,89,.2);color:#7FBA9A}
+.badge-red{background:rgba(192,57,43,.2);color:#E88075}
+
+/* LEVEL */
+.lv-card{background:linear-gradient(135deg,#2A0A28,#3B153A);border-radius:16px;padding:18px;margin-bottom:12px;position:relative;overflow:hidden}
+.lv-card::after{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:rgba(240,201,135,.08);border-radius:50%}
+
+/* HABIT ITEM */
+.habit{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
+.habit:last-child{border:none}
+.habit-info{flex:1}
+.habit-title{font-size:14px;font-weight:500;color:var(--text)}
+.habit-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.habit-xp{font-size:11px;font-weight:700;color:var(--gold);background:rgba(240,201,135,.1);padding:2px 8px;border-radius:99px;flex-shrink:0}
+
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:99px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;display:none;color:var(--dark)}
+</style>
 </head>
 <body>
-<div id="root">
+<div id="app">
   <div id="toast" class="toast"></div>
 
-  <!-- PAGES -->
-  <div id="page-dashboard" class="page active"></div>
-  <div id="page-depenses" class="page"></div>
-  <div id="page-historique" class="page"></div>
-  <div id="page-stats" class="page"></div>
-  <div id="page-settings" class="page"></div>
+  <div id="pg-home"    class="pg on"></div>
+  <div id="pg-routine" class="pg"></div>
+  <div id="pg-budget"  class="pg"></div>
+  <div id="pg-stats"   class="pg"></div>
+  <div id="pg-settings" class="pg"></div>
 
-  <!-- NAV -->
   <nav class="nav">
-    <button class="nav-btn active" onclick="goTab('dashboard')">
-      <span class="icon">⊞</span><span>Accueil</span>
-    </button>
-    <button class="nav-btn" onclick="goTab('depenses')">
-      <span class="icon">💸</span><span>Dépenses</span>
-    </button>
-    <button class="nav-btn" onclick="goTab('historique')">
-      <span class="icon">📅</span><span>Historique</span>
-    </button>
-    <button class="nav-btn" onclick="goTab('stats')">
-      <span class="icon">◎</span><span>Stats</span>
-    </button>
-    <button class="nav-btn" onclick="goTab('settings')">
-      <span class="icon">⚙</span><span>Réglages</span>
-    </button>
+    <button class="nb on" onclick="go('home')"><span class="ic">🏠</span><span>Accueil</span></button>
+    <button class="nb"    onclick="go('routine')"><span class="ic">🌅</span><span>Routine</span></button>
+    <button class="nb"    onclick="go('budget')"><span class="ic">💸</span><span>Budget</span></button>
+    <button class="nb"    onclick="go('stats')"><span class="ic">📊</span><span>Stats</span></button>
+    <button class="nb"    onclick="go('settings')"><span class="ic">⚙️</span><span>Réglages</span></button>
   </nav>
 </div>
 
 <script>
-// ─── DATA ───────────────────────────────────────────────
-const CURRENCIES = [
-  { code:'FCFA', symbol:'FCFA', name:'Franc CFA' },
-  { code:'EUR',  symbol:'€',    name:'Euro' },
-  { code:'USD',  symbol:'$',    name:'Dollar US' },
-  { code:'GBP',  symbol:'£',    name:'Livre Sterling' },
-];
+// ══════════════════════════════════════════
+//  CONSTANTS
+// ══════════════════════════════════════════
 const CATS = [
-  { id:'food',      label:'Food',      icon:'🍔', color:'#E24B4A' },
-  { id:'transport', label:'Transport', icon:'🚗', color:'#378ADD' },
-  { id:'loisirs',   label:'Loisirs',   icon:'🎮', color:'#7F77DD' },
-  { id:'epargne',   label:'Épargne',   icon:'💰', color:'#1D9E75' },
-  { id:'shopping',  label:'Shopping',  icon:'🛍️', color:'#D4537E' },
-  { id:'autre',     label:'Autre',     icon:'📦', color:'#888780' },
+  {id:'alimentation', label:'Alimentation', icon:'🍔', color:'#E67E22'},
+  {id:'transport',    label:'Transport',    icon:'🚗', color:'#2980B9'},
+  {id:'logement',     label:'Logement',     icon:'🏠', color:'#F0C987'},
+  {id:'loisirs',      label:'Loisirs',      icon:'🎮', color:'#8E44AD'},
+  {id:'sante',        label:'Santé',        icon:'💊', color:'#E8445A'},
+  {id:'epargne',      label:'Épargne',      icon:'💰', color:'#4A7C59'},
+  {id:'shopping',     label:'Shopping',     icon:'🛍️', color:'#D4537E'},
+  {id:'autre',        label:'Autre',        icon:'📦', color:'#7A6A4A'},
 ];
+
+const MOODS = ['😤 Motivé','🎯 Focus','😴 Fatigué','✨ Créatif','⚡ Stressé','🌿 Serein'];
+
+const HABITS = [
+  {id:'h1', section:'matin', label:'Me lever',       sub:'À heure fixe',               xp:5,  icon:'🌅'},
+  {id:'h2', section:'matin', label:'Sport',          sub:'15 min — cardio ou étirements', xp:15, icon:'🏃'},
+  {id:'h3', section:'matin', label:'Douche froide',  sub:'Boost énergie',              xp:10, icon:'🚿'},
+  {id:'h4', section:'matin', label:'Petit-déjeuner', sub:'Nutritif et équilibré',      xp:5,  icon:'🥗'},
+  {id:'h5', section:'matin', label:'Lecture',        sub:'10 min minimum',             xp:10, icon:'📖'},
+  {id:'h6', section:'jour',  label:'Boire de l\'eau',sub:'2L dans la journée',         xp:5,  icon:'💧'},
+  {id:'h7', section:'jour',  label:'Vérifier budget',sub:'Dépenses du jour',           xp:10, icon:'💸'},
+  {id:'h8', section:'jour',  label:'Méditation',     sub:'5 min de pleine conscience', xp:10, icon:'🧘'},
+  {id:'h9', section:'soir',  label:'Planifier demain',sub:'Écrire 3 priorités',        xp:10, icon:'📝'},
+  {id:'h10',section:'soir',  label:'Lire 20 min',    sub:'Livre au choix',             xp:10, icon:'🌙'},
+  {id:'h11',section:'soir',  label:'Pas d\'écran',   sub:'30 min avant de dormir',     xp:15, icon:'📵'},
+  {id:'h12',section:'soir',  label:'Gratitude',      sub:'3 choses positives du jour', xp:5,  icon:'🙏'},
+];
+
 const LEVELS = [
-  { name:'Novice',    min:0,    color:'#888780' },
-  { name:'Apprenti',  min:100,  color:'#378ADD' },
-  { name:'Confirmé',  min:300,  color:'#7F77DD' },
-  { name:'Expert',    min:600,  color:'#1D9E75' },
-  { name:'Maître',    min:1000, color:'#EF9F27' },
-];
-const DEFAULT_TASKS = [
-  { id:1, text:'Vérifier mon budget du jour', done:false },
-  { id:2, text:'Éviter une dépense inutile',  done:false },
-  { id:3, text:'Mettre de côté 500 FCFA',     done:false },
-  { id:4, text:'Lire 10 min sur la finance',  done:false },
+  {name:'Novice',   min:0,   color:'#7A6A4A'},
+  {name:'Apprenti', min:100, color:'#2980B9'},
+  {name:'Confirmé', min:300, color:'#8E44AD'},
+  {name:'Expert',   min:600, color:'#4A7C59'},
+  {name:'Maître',   min:1000,color:'#F0C987'},
 ];
 
-// ─── STATE ──────────────────────────────────────────────
-function load(k, d) { try { const v=localStorage.getItem(k); return v?JSON.parse(v):d; } catch { return d; } }
-function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+const CURRENCIES = [
+  {code:'FCFA',symbol:'FCFA'},{code:'EUR',symbol:'€'},{code:'USD',symbol:'$'},{code:'GBP',symbol:'£'}
+];
 
-function today() { return new Date().toISOString().slice(0,10); }
-function monthKey(d) { return d.slice(0,7); }
-function currentMonth() { return today().slice(0,7); }
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+const ld = (k,d) => { try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d} };
+const sv = (k,v) => { try{localStorage.setItem(k,JSON.stringify(v))}catch{} };
+const tod = () => new Date().toISOString().slice(0,10);
+const mk  = d  => d.slice(0,7);
+const cm  = () => tod().slice(0,7);
 
-let state = {
-  tab: 'dashboard',
-  currency: load('bq_currency', CURRENCIES[0]),
-  budget:   load('bq_budget', 50000),
-  depenses: load('bq_depenses', [
-    { id:1, cat:'food',      label:'Déjeuner', amount:2500, date:'2026-04-28' },
-    { id:2, cat:'transport', label:'Taxi',     amount:1500, date:'2026-04-28' },
-    { id:3, cat:'loisirs',   label:'Netflix',  amount:4000, date:'2026-04-27' },
+let S = {
+  tab: 'home',
+  mood: ld('bq_mood_'+tod(), ''),
+  energy: ld('bq_energy_'+tod(), 0),
+  habits: ld('bq_habits_'+tod(), {}),
+  xp: ld('bq_xp', 0),
+  streak: ld('bq_streak', 0),
+  depenses: ld('bq_dep', [
+    {id:1,cat:'alimentation',label:'Déjeuner',amount:3500,date:'2026-04-29'},
+    {id:2,cat:'transport',label:'Taxi moto',amount:500,date:'2026-04-29'},
+    {id:3,cat:'loisirs',label:'Cinéma',amount:5000,date:'2026-04-28'},
+    {id:4,cat:'logement',label:'Loyer',amount:45000,date:'2026-04-01'},
+    {id:5,cat:'alimentation',label:'Courses',amount:12000,date:'2026-04-27'},
+    {id:6,cat:'sante',label:'Pharmacie',amount:6000,date:'2026-04-25'},
   ]),
-  tasks:      load('bq_tasks_'+today(), DEFAULT_TASKS),
-  xp:         load('bq_xp', 80),
-  streak:     load('bq_streak', 3),
-  notif:      load('bq_notif', false),
-  notifTime:  load('bq_notif_time', '20:00'),
-  histMonth:  currentMonth(),
-  form:       { label:'', amount:'', cat:'food' },
-  newTask:    '',
-  editBudget: false,
-  tempBudget: '',
+  budget: ld('bq_budget', 150000),
+  currency: ld('bq_cur', CURRENCIES[0]),
+  form: {label:'',amount:'',cat:'alimentation',date:tod()},
+  depTab: 'add',
+  histMonth: cm(),
+  notif: ld('bq_notif', false),
 };
 
-function persist() {
-  save('bq_currency',   state.currency);
-  save('bq_budget',     state.budget);
-  save('bq_depenses',   state.depenses);
-  save('bq_tasks_'+today(), state.tasks);
-  save('bq_xp',         state.xp);
-  save('bq_streak',     state.streak);
-  save('bq_notif',      state.notif);
-  save('bq_notif_time', state.notifTime);
-}
+const persist = () => {
+  sv('bq_mood_'+tod(), S.mood);
+  sv('bq_energy_'+tod(), S.energy);
+  sv('bq_habits_'+tod(), S.habits);
+  sv('bq_xp', S.xp);
+  sv('bq_streak', S.streak);
+  sv('bq_dep', S.depenses);
+  sv('bq_budget', S.budget);
+  sv('bq_cur', S.currency);
+  sv('bq_notif', S.notif);
+};
 
-// ─── HELPERS ────────────────────────────────────────────
-function getLevel(xp) {
-  let lv = LEVELS[0];
-  LEVELS.forEach(l => { if (xp >= l.min) lv = l; });
-  return lv;
-}
-function getNextLevel(xp) {
-  for (let i = LEVELS.length-1; i >= 0; i--) {
-    if (xp >= LEVELS[i].min) return LEVELS[i+1] || null;
-  }
-  return LEVELS[1];
-}
-function cat(id) { return CATS.find(c => c.id === id) || CATS[5]; }
-function sym() { return state.currency.symbol; }
-function monthDeps() { return state.depenses.filter(d => monthKey(d.date) === currentMonth()); }
-function total() { return monthDeps().reduce((s,d) => s+d.amount, 0); }
-function catTotals(deps) {
-  return CATS.map(c => ({ ...c, total: deps.filter(d=>d.cat===c.id).reduce((s,d)=>s+d.amount,0) }))
-             .filter(c => c.total > 0);
-}
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+const cat = id => CATS.find(c=>c.id===id)||CATS[7];
+const sym = () => S.currency.symbol;
+const lv  = xp => { let l=LEVELS[0]; LEVELS.forEach(x=>{if(xp>=x.min)l=x}); return l; };
+const nlv = xp => { for(let i=LEVELS.length-1;i>=0;i--){if(xp>=LEVELS[i].min)return LEVELS[i+1]||null;} return LEVELS[1]; };
+const mDeps = () => S.depenses.filter(d=>mk(d.date)===cm());
+const total = () => mDeps().reduce((s,d)=>s+d.amount,0);
+const catTot = deps => CATS.map(c=>({...c,total:deps.filter(d=>d.cat===c.id).reduce((s,d)=>s+d.amount,0)})).filter(c=>c.total>0);
+const fmtNum = n => n.toLocaleString('fr-FR');
+const habitsDoneCount = () => Object.values(S.habits).filter(Boolean).length;
+const totalXpHabits = () => HABITS.filter(h=>S.habits[h.id]).reduce((s,h)=>s+h.xp,0);
 
-let toastTimer;
-function showToast(msg, color) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.background = color || '#7F77DD';
-  t.style.display = 'block';
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { t.style.display = 'none'; }, 2500);
-}
+let toastT;
+const toast = (msg,bg='#F0C987') => {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.background=bg; t.style.display='block';
+  clearTimeout(toastT); toastT=setTimeout(()=>t.style.display='none',2500);
+};
 
-// ─── NAVIGATION ─────────────────────────────────────────
-function goTab(tab) {
-  state.tab = tab;
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-'+tab).classList.add('active');
-  const tabs = ['dashboard','depenses','historique','stats','settings'];
-  document.querySelectorAll('.nav-btn')[tabs.indexOf(tab)].classList.add('active');
+// ══════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════
+const TABS = ['home','routine','budget','stats','settings'];
+function go(tab){
+  S.tab=tab;
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach((b,i)=>b.classList.toggle('on',TABS[i]===tab));
+  document.getElementById('pg-'+tab).classList.add('on');
   render();
 }
 
-// ─── RENDER ─────────────────────────────────────────────
-function render() {
-  renderDashboard();
-  renderDepenses();
-  renderHistorique();
-  renderStats();
-  renderSettings();
-}
+// ══════════════════════════════════════════
+//  RENDER ALL
+// ══════════════════════════════════════════
+function render(){ rHome(); rRoutine(); rBudget(); rStats(); rSettings(); }
 
-// ── DASHBOARD ───────────────────────────────────────────
-function renderDashboard() {
-  const xp = state.xp;
-  const lv = getLevel(xp), nl = getNextLevel(xp);
-  const xpPct = nl ? Math.round(((xp-lv.min)/(nl.min-lv.min))*100) : 100;
-  const tasks = state.tasks;
-  const done = tasks.filter(t=>t.done).length;
-  const tPct = tasks.length ? Math.round((done/tasks.length)*100) : 0;
-  const t = total(), b = state.budget, r = b-t;
-  const bPct = Math.min(100, Math.round((t/b)*100));
-  const bColor = bPct>80?'#E24B4A':bPct>60?'#EF9F27':'#1D9E75';
-  const dateStr = new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+// ══════════════════════════════════════════
+//  HOME
+// ══════════════════════════════════════════
+function rHome(){
+  const xp=S.xp, l=lv(xp), nl=nlv(xp);
+  const xpPct=nl?Math.round(((xp-l.min)/(nl.min-l.min))*100):100;
+  const done=habitsDoneCount(), total_h=HABITS.length;
+  const pct=total_h?Math.round((done/total_h)*100):0;
+  const t=total(), b=S.budget, r=b-t;
+  const bPct=Math.min(100,Math.round((t/b)*100));
+  const bCol=bPct>80?'#C0392B':bPct>60?'#E67E22':'#4A7C59';
+  const dateStr=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
 
-  document.getElementById('page-dashboard').innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <div>
-        <div style="font-size:18px;font-weight:500">Bonjour 👋</div>
-        <div style="font-size:12px;color:#888">${dateStr}</div>
-      </div>
-      <div class="badge">🔥 ${state.streak} jours</div>
-    </div>
+  document.getElementById('pg-home').innerHTML=`
+  <div style="padding:16px 0 0">
 
-    <div class="level-card">
+    <!-- HERO -->
+    <div class="card-hero" style="margin:0 0 12px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
         <div>
-          <div style="font-size:11px;color:#AFA9EC;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Niveau actuel</div>
-          <div style="font-size:20px;font-weight:500;color:#fff">${lv.name}</div>
+          <div style="font-size:22px;font-weight:700;color:var(--gold)">Bonjour, Elie ✦</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:3px;text-transform:capitalize">${dateStr}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:1px">Chaque jour construit qui tu seras.</div>
+        </div>
+        <div class="badge badge-gold">🔥 ${S.streak} j.</div>
+      </div>
+      ${S.mood ? `<div style="margin-top:12px;font-size:13px;color:var(--text2)">Humeur : <span style="color:var(--gold)">${S.mood}</span> · Énergie : <span style="color:var(--gold)">${S.energy}/5</span></div>` : ''}
+    </div>
+
+    <!-- LEVEL -->
+    <div class="lv-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.07em">Niveau</div>
+          <div style="font-size:20px;font-weight:700;color:var(--gold);margin-top:2px">${l.name}</div>
         </div>
         <div style="text-align:right">
-          <div style="font-size:22px;font-weight:500;color:#EF9F27">${xp} XP</div>
-          ${nl ? `<div style="font-size:11px;color:#AFA9EC">/${nl.min} → ${nl.name}</div>` : ''}
+          <div style="font-size:24px;font-weight:700;color:var(--gold)">${xp} XP</div>
+          ${nl?`<div style="font-size:11px;color:var(--text2)">/${nl.min} → ${nl.name}</div>`:'<div style="font-size:11px;color:var(--gold)">Niveau max 🏆</div>'}
         </div>
       </div>
-      <div style="height:6px;background:rgba(255,255,255,.15);border-radius:99px;margin-top:12px;overflow:hidden">
-        <div style="height:100%;width:${xpPct}%;background:#EF9F27;border-radius:99px;transition:width .4s"></div>
+      <div class="track" style="margin-top:12px">
+        <div class="fill" style="width:${xpPct}%;background:var(--gold)"></div>
+      </div>
+      <div style="text-align:right;font-size:11px;color:var(--text2);margin-top:4px">${xpPct}%</div>
+    </div>
+
+    <!-- HABITUDES -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="sec" style="margin:0">Checklist du jour</div>
+        <div class="badge badge-gold">${done}/${total_h}</div>
+      </div>
+      <div class="track" style="margin-bottom:14px">
+        <div class="fill" style="width:${pct}%;background:var(--gold)"></div>
+      </div>
+      <div onclick="go('routine')" style="text-align:center;font-size:13px;color:var(--text2);cursor:pointer;padding:8px;border:1px solid var(--border);border-radius:10px">
+        Voir ma routine complète →
       </div>
     </div>
 
+    <!-- BUDGET RAPIDE -->
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div class="sec-title" style="margin:0">Missions du jour</div>
-        <div style="font-size:11px;font-weight:500;color:#7F77DD">${done}/${tasks.length} · +25 XP</div>
-      </div>
-      <div class="progress-track" style="margin-bottom:14px">
-        <div class="progress-fill" style="width:${tPct}%;background:#7F77DD"></div>
-      </div>
-      ${tasks.map(t => `
-        <div class="task-row">
-          <div class="checkbox ${t.done?'done':''}" onclick="toggleTask(${t.id})">
-            ${t.done ? '<span style="color:#fff;font-size:12px">✓</span>' : ''}
-          </div>
-          <span style="font-size:14px;flex:1;color:${t.done?'#888':'#F0F0F5'};text-decoration:${t.done?'line-through':'none'}">${t.text}</span>
+      <div class="sec">Budget du mois</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:var(--dark3);border-radius:10px;padding:10px 8px;text-align:center">
+          <div style="font-size:10px;color:var(--text2)">Total dépensé</div>
+          <div style="font-size:15px;font-weight:700;color:#E8445A;margin-top:3px">${fmtNum(t)}</div>
+          <div style="font-size:10px;color:var(--text2)">${sym()}</div>
         </div>
-      `).join('')}
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <input class="input" id="newTaskInput" style="flex:1;margin:0" placeholder="Nouvelle mission..." value="${state.newTask}"
-          oninput="state.newTask=this.value" onkeydown="if(event.key==='Enter')addTask()" />
-        <button class="btn" onclick="addTask()">+</button>
+        <div style="background:var(--dark3);border-radius:10px;padding:10px 8px;text-align:center">
+          <div style="font-size:10px;color:var(--text2)">Budget</div>
+          <div style="font-size:15px;font-weight:700;color:var(--gold);margin-top:3px">${fmtNum(b)}</div>
+          <div style="font-size:10px;color:var(--text2)">${sym()}</div>
+        </div>
+        <div style="background:${r<0?'rgba(192,57,43,.2)':'var(--dark3)'};border-radius:10px;padding:10px 8px;text-align:center">
+          <div style="font-size:10px;color:var(--text2)">Solde</div>
+          <div style="font-size:15px;font-weight:700;color:${r<0?'#E8445A':'#4A7C59'};margin-top:3px">${fmtNum(r)}</div>
+          <div style="font-size:10px;color:var(--text2)">${sym()}</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px">
+        <span>Consommé</span><span style="font-weight:700;color:${bCol}">${bPct}%</span>
+      </div>
+      <div class="track">
+        <div class="fill" style="width:${bPct}%;background:${bCol}"></div>
       </div>
     </div>
-
-    <div class="card">
-      <div class="sec-title">Budget du mois</div>
-      <div class="grid2">
-        <div class="stat-box">
-          <div class="lbl">Budget</div>
-          <div class="val" style="font-size:15px;cursor:pointer" onclick="startEditBudget()">
-            ${state.editBudget
-              ? `<div style="display:flex;gap:4px"><input id="budgetInput" class="input" style="margin:0;padding:4px 8px;font-size:13px" value="${state.tempBudget}"
-                  oninput="state.tempBudget=this.value" onkeydown="if(event.key==='Enter')saveBudget()" />
-                 <button class="btn" style="padding:4px 8px;font-size:12px" onclick="saveBudget()">✓</button></div>`
-              : `${state.budget.toLocaleString()} <span style="font-size:11px;color:#888">${sym()} ✏️</span>`
-            }
-          </div>
-        </div>
-        <div class="stat-box" style="${r<0?'background:#2A0A0A':''}">
-          <div class="lbl">Reste</div>
-          <div class="val" style="font-size:15px;color:${r<0?'#E24B4A':'#F0F0F5'}">${r.toLocaleString()} <span style="font-size:11px;color:#888">${sym()}</span></div>
-        </div>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px">
-        <span>Dépensé ce mois</span><span style="font-weight:500">${bPct}%</span>
-      </div>
-      <div class="progress-track">
-        <div class="progress-fill" style="width:${bPct}%;background:${bColor}"></div>
-      </div>
-    </div>
-  `;
-  if (state.editBudget) { setTimeout(()=>{ const i=document.getElementById('budgetInput'); if(i)i.focus(); },10); }
+  </div>`;
 }
 
-// ── DÉPENSES ────────────────────────────────────────────
-function renderDepenses() {
-  const deps = state.depenses;
-  const md = monthDeps(), t = total();
-  const cats = catTotals(md);
+// ══════════════════════════════════════════
+//  ROUTINE
+// ══════════════════════════════════════════
+function rRoutine(){
+  const done=habitsDoneCount();
+  const sections=[
+    {key:'matin',label:'🌅 Routine matinale'},
+    {key:'jour', label:'☀️ Dans la journée'},
+    {key:'soir', label:'🌙 Routine du soir'},
+  ];
 
-  document.getElementById('page-depenses').innerHTML = `
-    <div style="font-size:18px;font-weight:500;margin-bottom:16px">Mes dépenses</div>
-    <div class="card">
-      <div class="sec-title">Nouvelle dépense</div>
-      <input class="input" placeholder="Description (Taxi, Déjeuner...)" id="fLabel" value="${state.form.label}" oninput="state.form.label=this.value" />
-      <input class="input" type="number" placeholder="Montant (${sym()})" id="fAmount" value="${state.form.amount}" oninput="state.form.amount=this.value" />
-      <select class="select" id="fCat" onchange="state.form.cat=this.value">
-        ${CATS.map(c=>`<option value="${c.id}" ${state.form.cat===c.id?'selected':''}>${c.icon} ${c.label}</option>`).join('')}
-      </select>
-      <button class="btn" style="width:100%" onclick="addDepense()">Ajouter la dépense</button>
-    </div>
+  document.getElementById('pg-routine').innerHTML=`
+  <div style="padding-top:16px">
+    <div style="font-size:20px;font-weight:700;margin-bottom:4px">Ma Routine</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:14px">${done}/${HABITS.length} complétées · +${totalXpHabits()} XP gagnés</div>
 
-    ${cats.length>0 ? `
+    <!-- MOOD -->
+    ${!S.mood ? `
     <div class="card">
-      <div class="sec-title">Répartition du mois</div>
-      ${cats.map(c=>`
-        <div style="margin-bottom:10px">
-          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
-            <span>${c.icon} ${c.label}</span>
-            <span style="font-weight:500">${c.total.toLocaleString()} ${sym()}</span>
-          </div>
-          <div class="progress-track">
-            <div class="progress-fill" style="width:${t?Math.round((c.total/t)*100):0}%;background:${c.color}"></div>
-          </div>
-        </div>
-      `).join('')}
-    </div>` : ''}
+      <div class="sec">Comment tu commences ?</div>
+      <div class="mood-row">
+        ${MOODS.map(m=>`<button class="mood-btn" onclick="setMood('${m}')">${m}</button>`).join('')}
+      </div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Énergie</div>
+      <div class="nrg-row">
+        ${[1,2,3,4,5].map(n=>`<button class="nrg" onclick="setEnergy(${n})">${n}</button>`).join('')}
+      </div>
+    </div>` : `
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:13px;font-weight:600">${S.mood}</div>
+        <div style="font-size:12px;color:var(--text2)">Énergie : ${'⚡'.repeat(S.energy)} (${S.energy}/5)</div>
+      </div>
+      <button class="btn btn-outline" style="padding:6px 12px;font-size:12px" onclick="S.mood='';S.energy=0;persist();rRoutine()">Changer</button>
+    </div>`}
 
-    <div class="card">
-      <div class="sec-title">Récent</div>
-      ${deps.length===0 ? '<div style="font-size:13px;color:#888;text-align:center;padding:20px">Aucune dépense</div>' : ''}
-      ${deps.slice(0,30).map(d=>{
-        const c = cat(d.cat);
-        return `<div class="dep-row">
-          <div class="cat-icon" style="background:${c.color}22">${c.icon}</div>
-          <div style="flex:1">
-            <div style="font-size:14px;font-weight:500">${d.label}</div>
-            <div style="font-size:11px;color:#888">${c.label} · ${d.date}</div>
+    <!-- HABITS -->
+    ${sections.map(sec=>{
+      const habs=HABITS.filter(h=>h.section===sec.key);
+      return `
+      <div class="card">
+        <div class="sec">${sec.label}</div>
+        ${habs.map(h=>`
+        <div class="habit">
+          <div class="chk ${S.habits[h.id]?'done':''}" onclick="toggleHabit('${h.id}',${h.xp})">
+            ${S.habits[h.id]?'<span style="color:var(--dark);font-size:12px;font-weight:700">✓</span>':''}
           </div>
-          <div style="text-align:right">
-            <div style="font-size:14px;font-weight:500;color:#E24B4A">-${d.amount.toLocaleString()}</div>
-            <div style="font-size:11px;color:#888">${sym()}</div>
+          <div class="habit-info">
+            <div class="habit-title" style="${S.habits[h.id]?'text-decoration:line-through;color:var(--text3)':''}">${h.icon} ${h.label}</div>
+            <div class="habit-sub">${h.sub}</div>
           </div>
-          <button class="del-btn" onclick="removeDepense(${d.id})">×</button>
-        </div>`;
-      }).join('')}
-      ${deps.length>0?`
-        <div style="display:flex;justify-content:space-between;padding-top:12px;font-weight:500">
-          <span>Total ce mois</span>
-          <span style="color:#E24B4A">${t.toLocaleString()} ${sym()}</span>
-        </div>`:''}
-    </div>
-  `;
+          <div class="habit-xp">+${h.xp} XP</div>
+        </div>`).join('')}
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  // restore mood buttons state
+  document.querySelectorAll('.mood-btn').forEach(b=>{
+    if(b.textContent===S.mood)b.classList.add('on');
+  });
+  document.querySelectorAll('.nrg').forEach(b=>{
+    if(parseInt(b.textContent)===S.energy)b.classList.add('on');
+  });
 }
 
-// ── HISTORIQUE ──────────────────────────────────────────
-function renderHistorique() {
-  const allMonths = [...new Set(state.depenses.map(d=>monthKey(d.date)))].sort().reverse();
-  if (!allMonths.includes(state.histMonth)) state.histMonth = currentMonth();
-  const hd = state.depenses.filter(d=>monthKey(d.date)===state.histMonth);
-  const ht = hd.reduce((s,d)=>s+d.amount,0);
-  const cats = catTotals(hd);
+function toggleHabit(id,xpVal){
+  const wasDone=S.habits[id];
+  S.habits[id]=!wasDone;
+  S.xp=Math.max(0,S.xp+(wasDone?-xpVal:xpVal));
+  if(!wasDone)toast(`+${xpVal} XP 🎉`);
+  persist(); render();
+}
+function setMood(m){ S.mood=m; persist(); rRoutine(); }
+function setEnergy(n){ S.energy=n; persist(); rRoutine(); }
 
-  document.getElementById('page-historique').innerHTML = `
-    <div style="font-size:18px;font-weight:500;margin-bottom:16px">Historique mensuel</div>
-    <select class="select" onchange="state.histMonth=this.value;renderHistorique()">
-      ${(allMonths.length?allMonths:[currentMonth()]).map(m=>`<option value="${m}" ${state.histMonth===m?'selected':''}>${m}</option>`).join('')}
-    </select>
+// ══════════════════════════════════════════
+//  BUDGET
+// ══════════════════════════════════════════
+function rBudget(){
+  const t=total(), b=S.budget, r=b-t;
+  const bPct=Math.min(100,Math.round((t/b)*100));
+  const md=mDeps(), cats=catTot(md);
+  const allM=[...new Set(S.depenses.map(d=>mk(d.date)))].sort().reverse();
+  const hDeps=S.depenses.filter(d=>mk(d.date)===S.histMonth);
+  const hTot=hDeps.reduce((s,d)=>s+d.amount,0);
 
-    <div class="grid2">
-      <div class="stat-box"><div class="lbl">Total dépensé</div><div class="val" style="color:#E24B4A">${ht.toLocaleString()}</div><div class="lbl">${sym()}</div></div>
-      <div class="stat-box"><div class="lbl">Transactions</div><div class="val" style="color:#7F77DD">${hd.length}</div><div class="lbl">entrées</div></div>
+  document.getElementById('pg-budget').innerHTML=`
+  <div style="padding-top:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div>
+        <div style="font-size:20px;font-weight:700">Suivi des dépenses</div>
+        <div style="font-size:12px;color:var(--text2)">${new Date().toLocaleDateString('fr-FR',{month:'long',year:'numeric'})}</div>
+      </div>
     </div>
 
-    ${cats.length>0?`
+    <!-- STATS BAR -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px">
+      ${[
+        {lbl:'Total dépensé',val:fmtNum(t),unit:sym(),col:'#E8445A'},
+        {lbl:'Budget défini',val:fmtNum(b),unit:sym(),col:'var(--gold)'},
+        {lbl:'Solde budget', val:r>=0?fmtNum(r):'—',unit:r>=0?sym():'',col:r<0?'#E8445A':'#4A7C59'},
+        {lbl:'Transactions', val:md.length,unit:'',col:'var(--gold)'},
+      ].map(s=>`
+        <div style="background:var(--dark2);border:1px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--text2);margin-bottom:4px">${s.lbl}</div>
+          <div style="font-size:16px;font-weight:700;color:${s.col}">${s.val}</div>
+          <div style="font-size:9px;color:var(--text2)">${s.unit}</div>
+        </div>`).join('')}
+    </div>
+
+    <!-- SUB TABS -->
+    <div class="stabs">
+      <button class="stab ${S.depTab==='add'?'on':''}"    onclick="S.depTab='add';rBudget()">Ajouter</button>
+      <button class="stab ${S.depTab==='cats'?'on':''}"   onclick="S.depTab='cats';rBudget()">Par catégorie</button>
+      <button class="stab ${S.depTab==='hist'?'on':''}"   onclick="S.depTab='hist';rBudget()">Historique</button>
+    </div>
+
+    <!-- ADD -->
+    ${S.depTab==='add'?`
     <div class="card">
-      <div class="sec-title">Par catégorie</div>
-      ${cats.map(c=>`
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-          <div class="cat-icon" style="background:${c.color}22;width:32px;height:32px">${c.icon}</div>
-          <div style="flex:1">
-            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px">
-              <span style="font-weight:500">${c.label}</span>
-              <span>${ht?Math.round((c.total/ht)*100):0}%</span>
-            </div>
-            <div class="progress-track" style="height:5px">
-              <div class="progress-fill" style="width:${ht?Math.round((c.total/ht)*100):0}%;background:${c.color}"></div>
-            </div>
-          </div>
-          <div style="font-size:13px;font-weight:500;min-width:70px;text-align:right">${c.total.toLocaleString()} ${sym()}</div>
+      <div class="sec">Ajouter une dépense</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px">Montant (${sym()})</div>
+          <input type="number" id="fAmt" placeholder="ex : 5000" value="${S.form.amount}" oninput="S.form.amount=this.value" style="margin:0"/>
         </div>
-      `).join('')}
+        <div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px">Date</div>
+          <input type="date" id="fDate" value="${S.form.date}" oninput="S.form.date=this.value" style="margin:0"/>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+        <div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px">Catégorie</div>
+          <select id="fCat" onchange="S.form.cat=this.value" style="margin:0">
+            ${CATS.map(c=>`<option value="${c.id}" ${S.form.cat===c.id?'selected':''}>${c.icon} ${c.label}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px">Description</div>
+          <input id="fLbl" placeholder="Ex : Déjeuner" value="${S.form.label}" oninput="S.form.label=this.value" style="margin:0" onkeydown="if(event.key==='Enter')addDep()"/>
+        </div>
+      </div>
+      <button class="btn btn-gold btn-full" style="margin-top:12px" onclick="addDep()">+ Ajouter la dépense</button>
+    </div>
+
+    <div class="card">
+      <div class="sec">Récent</div>
+      ${S.depenses.slice(0,10).map(d=>{const c=cat(d.cat);return`
+      <div class="dep-row">
+        <div class="cat-dot" style="background:${c.color}22">${c.icon}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500">${d.label}</div>
+          <div style="font-size:11px;color:var(--text2)">${c.label} · ${d.date}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:14px;font-weight:700;color:#E8445A">-${fmtNum(d.amount)}</div>
+          <div style="font-size:10px;color:var(--text2)">${sym()}</div>
+        </div>
+        <button onclick="delDep(${d.id})" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:0 4px">×</button>
+      </div>`}).join('')}
+      ${S.depenses.length===0?'<div style="text-align:center;color:var(--text2);padding:20px;font-size:13px">Aucune dépense</div>':''}
     </div>`:''}
 
+    <!-- CATS -->
+    ${S.depTab==='cats'?`
     <div class="card">
-      <div class="sec-title">Toutes les transactions</div>
-      ${hd.length===0?'<div style="font-size:13px;color:#888;text-align:center;padding:20px">Aucune dépense ce mois</div>':''}
-      ${hd.map(d=>{
-        const c=cat(d.cat);
-        return `<div class="dep-row">
-          <span style="font-size:18px">${c.icon}</span>
-          <div style="flex:1"><div style="font-size:13px;font-weight:500">${d.label}</div><div style="font-size:11px;color:#888">${d.date}</div></div>
-          <span style="font-size:13px;font-weight:500;color:#E24B4A">-${d.amount.toLocaleString()} ${sym()}</span>
-        </div>`;
-      }).join('')}
-    </div>
-  `;
-}
-
-// ── STATS ────────────────────────────────────────────────
-function renderStats() {
-  const t=total(), b=state.budget, r=b-t;
-  const cats=catTotals(monthDeps());
-  document.getElementById('page-stats').innerHTML = `
-    <div style="font-size:18px;font-weight:500;margin-bottom:16px">Statistiques</div>
-    <div class="grid2">
-      <div class="stat-box"><div class="lbl">Dépensé ce mois</div><div class="val" style="color:#E24B4A">${t.toLocaleString()}</div><div class="lbl">${sym()}</div></div>
-      <div class="stat-box"><div class="lbl">Reste</div><div class="val" style="color:${r<0?'#E24B4A':'#1D9E75'}">${r.toLocaleString()}</div><div class="lbl">${sym()}</div></div>
-      <div class="stat-box"><div class="lbl">Transactions</div><div class="val" style="color:#7F77DD">${state.depenses.length}</div><div class="lbl">entrées</div></div>
-      <div class="stat-box"><div class="lbl">XP total</div><div class="val" style="color:#EF9F27">${state.xp}</div><div class="lbl">points</div></div>
-    </div>
-
-    <div class="card">
-      <div class="sec-title">Répartition ce mois</div>
-      ${cats.length===0?'<div style="font-size:13px;color:#888;text-align:center;padding:16px">Aucune dépense</div>':''}
+      <div class="sec">Répartition par catégorie</div>
+      ${cats.length===0?'<div style="text-align:center;color:var(--text2);padding:20px;font-size:13px">Aucune dépense ce mois</div>':''}
       ${cats.map(c=>`
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-          <div class="cat-icon" style="background:${c.color}22">${c.icon}</div>
-          <div style="flex:1">
-            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
-              <span style="font-weight:500">${c.label}</span>
-              <span>${t?Math.round((c.total/t)*100):0}%</span>
-            </div>
-            <div class="progress-track">
-              <div class="progress-fill" style="width:${t?Math.round((c.total/t)*100):0}%;background:${c.color}"></div>
-            </div>
-          </div>
-          <div style="font-size:13px;font-weight:500;min-width:72px;text-align:right">${c.total.toLocaleString()} ${sym()}</div>
+      <div class="bar-row">
+        <div class="bar-label">${c.icon} ${c.label}</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${t?Math.round((c.total/t)*100):0}%;background:${c.color}"></div>
         </div>
-      `).join('')}
+        <div class="bar-val">${fmtNum(c.total)} ${sym()}</div>
+      </div>`).join('')}
     </div>
 
+    <!-- BUDGET PAR CAT -->
     <div class="card">
-      <div class="sec-title">Arbre des niveaux</div>
+      <div class="sec">Définir budget par catégorie</div>
+      ${CATS.map(c=>`
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="font-size:18px">${c.icon}</span>
+        <span style="flex:1;font-size:13px">${c.label}</span>
+        <input type="number" placeholder="Budget" style="width:110px;margin:0;font-size:12px;padding:6px 10px"
+          value="${(ld('bq_budcat_'+c.id,0)||'')}" oninput="sv('bq_budcat_${c.id}',parseInt(this.value)||0)"/>
+      </div>`).join('')}
+    </div>`:''}
+
+    <!-- HISTORIQUE -->
+    ${S.depTab==='hist'?`
+    <div style="margin-bottom:12px">
+      <select style="margin:0" onchange="S.histMonth=this.value;rBudget()">
+        ${(allM.length?allM:[cm()]).map(m=>`<option value="${m}" ${S.histMonth===m?'selected':''}>${m}</option>`).join('')}
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div class="sbox"><div class="lbl">Total dépensé</div><div class="val" style="color:#E8445A">${fmtNum(hTot)}</div><div class="unit">${sym()}</div></div>
+      <div class="sbox"><div class="lbl">Transactions</div><div class="val" style="color:var(--gold)">${hDeps.length}</div><div class="unit">entrées</div></div>
+    </div>
+    <div class="card">
+      <div class="sec">Toutes les transactions</div>
+      ${hDeps.length===0?'<div style="text-align:center;color:var(--text2);padding:20px;font-size:13px">Aucune dépense ce mois</div>':''}
+      ${hDeps.map(d=>{const c=cat(d.cat);return`
+      <div class="dep-row">
+        <span style="font-size:18px">${c.icon}</span>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500">${d.label}</div>
+          <div style="font-size:11px;color:var(--text2)">${d.date}</div>
+        </div>
+        <span style="font-size:13px;font-weight:700;color:#E8445A">-${fmtNum(d.amount)} ${sym()}</span>
+      </div>`}).join('')}
+    </div>`:''}
+  </div>`;
+}
+
+function addDep(){
+  if(!S.form.label||!S.form.amount){toast('Remplis tous les champs','#E8445A');return;}
+  S.depenses.unshift({id:Date.now(),cat:S.form.cat,label:S.form.label,amount:parseInt(S.form.amount),date:S.form.date});
+  S.form={label:'',amount:'',cat:'alimentation',date:tod()};
+  toast('Dépense ajoutée ✓','#4A7C59'); persist(); render();
+}
+function delDep(id){ S.depenses=S.depenses.filter(d=>d.id!==id); toast('Supprimée'); persist(); render(); }
+
+// ══════════════════════════════════════════
+//  STATS
+// ══════════════════════════════════════════
+function rStats(){
+  const t=total(), b=S.budget, r=b-t;
+  const md=mDeps(), cats=catTot(md);
+  const avgDep=md.length?Math.round(t/md.length):0;
+
+  document.getElementById('pg-stats').innerHTML=`
+  <div style="padding-top:16px">
+    <div style="font-size:20px;font-weight:700;margin-bottom:14px">Statistiques</div>
+
+    <div class="sg">
+      <div class="sbox"><div class="lbl">Total dépensé</div><div class="val" style="color:#E8445A">${fmtNum(t)}</div><div class="unit">${sym()}</div></div>
+      <div class="sbox"><div class="lbl">Solde restant</div><div class="val" style="color:${r<0?'#E8445A':'#4A7C59'}">${fmtNum(Math.abs(r))}</div><div class="unit">${r<0?'dépassé':sym()}</div></div>
+      <div class="sbox"><div class="lbl">Dépense moyenne</div><div class="val" style="color:var(--gold)">${fmtNum(avgDep)}</div><div class="unit">${sym()}</div></div>
+      <div class="sbox"><div class="lbl">XP total</div><div class="val" style="color:var(--gold)">${S.xp}</div><div class="unit">points</div></div>
+    </div>
+
+    <!-- GRAPHIQUE CATÉGORIES -->
+    <div class="card">
+      <div class="sec">Répartition ce mois</div>
+      ${cats.length===0?'<div style="text-align:center;color:var(--text2);padding:20px;font-size:13px">Aucune dépense</div>':''}
+      ${cats.map(c=>`
+      <div class="bar-row" style="margin-bottom:12px">
+        <div class="bar-label">${c.icon} ${c.label}</div>
+        <div class="bar-track" style="height:12px">
+          <div class="bar-fill" style="width:${t?Math.round((c.total/t)*100):0}%;background:${c.color}"></div>
+        </div>
+        <div class="bar-val">${fmtNum(c.total)} ${sym()}</div>
+      </div>`).join('')}
+    </div>
+
+    <!-- NIVEAUX -->
+    <div class="card">
+      <div class="sec">Progression de niveau</div>
       ${LEVELS.map((l,i)=>{
-        const active = state.xp>=l.min && state.xp<(LEVELS[i+1]?.min??Infinity);
-        return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <div style="width:10px;height:10px;border-radius:50%;background:${state.xp>=l.min?l.color:'#2A2A3A'};flex-shrink:0"></div>
-          <span style="flex:1;font-size:13px;color:${state.xp>=l.min?'#F0F0F5':'#888'};font-weight:${state.xp>=l.min?500:400}">${l.name}</span>
-          <span style="font-size:12px;color:#888">${l.min} XP</span>
-          ${active?'<span class="tag-actuel">actuel</span>':''}
-        </div>`;
-      }).join('')}
+        const active=S.xp>=l.min&&S.xp<(LEVELS[i+1]?.min??Infinity);
+        return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:10px;height:10px;border-radius:50%;background:${S.xp>=l.min?l.color:'var(--border)'}"></div>
+          <span style="flex:1;font-size:13px;color:${S.xp>=l.min?'var(--text)':'var(--text3)'};font-weight:${S.xp>=l.min?600:400}">${l.name}</span>
+          <span style="font-size:12px;color:var(--text2)">${l.min} XP</span>
+          ${active?'<span class="badge badge-gold" style="font-size:10px;padding:2px 8px">actuel</span>':''}
+        </div>`;}).join('')}
     </div>
-  `;
+
+    <!-- HABITUDES STATS -->
+    <div class="card">
+      <div class="sec">Habitudes du jour</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div class="sbox" style="text-align:center">
+          <div class="lbl">Complétées</div>
+          <div class="val" style="color:#4A7C59">${habitsDoneCount()}</div>
+        </div>
+        <div class="sbox" style="text-align:center">
+          <div class="lbl">Restantes</div>
+          <div class="val" style="color:#E67E22">${HABITS.length-habitsDoneCount()}</div>
+        </div>
+        <div class="sbox" style="text-align:center">
+          <div class="lbl">XP gagnés</div>
+          <div class="val" style="color:var(--gold)">${totalXpHabits()}</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
 }
 
-// ── SETTINGS ─────────────────────────────────────────────
-function renderSettings() {
-  document.getElementById('page-settings').innerHTML = `
-    <div style="font-size:18px;font-weight:500;margin-bottom:16px">Réglages</div>
+// ══════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════
+function rSettings(){
+  document.getElementById('pg-settings').innerHTML=`
+  <div style="padding-top:16px">
+    <div style="font-size:20px;font-weight:700;margin-bottom:14px">Réglages</div>
 
+    <!-- BUDGET -->
     <div class="card">
-      <div class="sec-title">Devise</div>
-      <div class="grid2">
+      <div class="sec">Budget mensuel</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="number" id="budgetInput" value="${S.budget}" style="flex:1;margin:0" placeholder="Ex: 150000"/>
+        <button class="btn btn-gold" onclick="saveBudget()">Enregistrer</button>
+      </div>
+    </div>
+
+    <!-- DEVISE -->
+    <div class="card">
+      <div class="sec">Devise</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
         ${CURRENCIES.map(c=>`
-          <button class="cur-btn ${state.currency.code===c.code?'active':''}" onclick="setCurrency('${c.code}')">
-            <div class="cur-sym" style="color:${state.currency.code===c.code?'#AFA9EC':'#F0F0F5'}">${c.symbol}</div>
-            <div class="cur-name">${c.name}</div>
-          </button>
-        `).join('')}
+        <button onclick="setCur('${c.code}')" style="padding:12px;border-radius:10px;cursor:pointer;text-align:left;
+          border:${S.currency.code===c.code?'2px solid var(--gold)':'1px solid var(--border)'};
+          background:${S.currency.code===c.code?'rgba(240,201,135,.1)':'var(--dark3)'};
+          color:${S.currency.code===c.code?'var(--gold)':'var(--text2)'}">
+          <div style="font-size:18px;font-weight:700">${c.symbol}</div>
+          <div style="font-size:11px">${c.code}</div>
+        </button>`).join('')}
       </div>
     </div>
 
+    <!-- NOTIF -->
     <div class="card">
-      <div class="sec-title">Notifications</div>
-      <div style="font-size:13px;color:#888;margin-bottom:12px">Reçois un rappel quotidien pour vérifier tes dépenses.</div>
-      ${!state.notif ? `
-        <button class="btn" onclick="requestNotif()">Activer les notifications</button>
-      ` : `
-        <div style="margin-bottom:12px">
-          <span class="notif-dot"></span>
-          <span style="font-size:13px;color:#1D9E75;font-weight:500">Notifications activées</span>
-        </div>
-        <div style="margin-bottom:10px">
-          <div style="font-size:12px;color:#888;margin-bottom:6px">Heure du rappel</div>
-          <input type="time" class="input" value="${state.notifTime}" oninput="state.notifTime=this.value;persist()" />
-        </div>
-        <button class="btn green" onclick="testNotif()" style="margin-right:8px">Tester</button>
-        <button class="btn gray" onclick="disableNotif()">Désactiver</button>
-      `}
+      <div class="sec">Notifications</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Rappel quotidien pour vérifier tes dépenses.</div>
+      ${!S.notif?`<button class="btn btn-gold btn-full" onclick="reqNotif()">Activer les notifications</button>`:`
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div style="width:8px;height:8px;border-radius:50%;background:#4A7C59"></div>
+        <span style="font-size:13px;color:#4A7C59;font-weight:600">Activées</span>
+      </div>
+      <button class="btn btn-outline btn-full" onclick="testNotif()">Tester une notification</button>`}
     </div>
 
+    <!-- INSTALL -->
     <div class="card">
-      <div class="sec-title">Installer l'application</div>
-      <div style="font-size:13px;color:#888;margin-bottom:14px;line-height:1.6">
-        Installe BudgetQuest sur ton bureau ou téléphone pour y accéder sans navigateur.
-      </div>
+      <div class="sec">Installer l'application</div>
       ${[
-        { icon:'🖥️', title:'PC / Mac (Chrome)', steps:["Ouvre l'app dans Chrome","Clique sur l'icône ⊕ dans la barre d'adresse","Clique 'Installer'"] },
-        { icon:'📱', title:'Android (Chrome)',   steps:["Ouvre l'app dans Chrome","Menu ⋮ → 'Ajouter à l'écran d'accueil'","Confirme l'installation"] },
-        { icon:'🍎', title:'iPhone (Safari)',    steps:["Ouvre l'app dans Safari","Appuie sur le bouton Partager ⬆️","Choisis 'Sur l'écran d'accueil'"] },
+        {ic:'🖥️',t:'PC / Mac (Chrome)',s:["Ouvre l'app dans Chrome","Icône ⊕ dans la barre d'adresse","Clique 'Installer'"]},
+        {ic:'📱',t:'Android (Chrome)',  s:["Menu ⋮ → 'Ajouter à l'écran d'accueil'","Confirme"]},
+        {ic:'🍎',t:'iPhone (Safari)',   s:["Bouton Partager ⬆️","Sur l'écran d'accueil"]},
       ].map(d=>`
-        <div style="margin-bottom:14px">
-          <div style="font-size:13px;font-weight:500;margin-bottom:6px">${d.icon} ${d.title}</div>
-          ${d.steps.map((s,i)=>`
-            <div class="install-step">
-              <span class="install-num">${i+1}.</span>
-              <span class="install-text">${s}</span>
-            </div>
-          `).join('')}
-        </div>
-      `).join('')}
+      <div style="margin-bottom:14px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px">${d.ic} ${d.t}</div>
+        ${d.s.map((s,i)=>`<div style="display:flex;gap:8px;margin-bottom:4px">
+          <span style="font-size:11px;color:var(--gold);font-weight:700;min-width:16px">${i+1}.</span>
+          <span style="font-size:12px;color:var(--text2)">${s}</span>
+        </div>`).join('')}
+      </div>`).join('')}
     </div>
 
+    <!-- RESET -->
     <div class="card">
-      <div class="sec-title">Danger zone</div>
-      <button class="btn red" onclick="resetData()">Réinitialiser toutes les données</button>
+      <div class="sec">Danger zone</div>
+      <button class="btn btn-red btn-full" onclick="resetAll()">Réinitialiser toutes les données</button>
     </div>
-  `;
+  </div>`;
 }
 
-// ─── ACTIONS ────────────────────────────────────────────
-function toggleTask(id) {
-  const t = state.tasks.find(t=>t.id===id);
-  if (!t) return;
-  if (!t.done) { state.xp += 25; showToast('+25 XP ! Bien joué 🎉', '#EF9F27'); }
-  else { state.xp = Math.max(0, state.xp-25); }
-  t.done = !t.done;
-  persist(); render();
+function saveBudget(){
+  const v=parseInt(document.getElementById('budgetInput').value);
+  if(!isNaN(v)&&v>0){S.budget=v;toast('Budget mis à jour ✓','#4A7C59');persist();render();}
+}
+function setCur(code){S.currency=CURRENCIES.find(c=>c.code===code);toast('Devise : '+code,'#4A7C59');persist();render();}
+async function reqNotif(){
+  if(!('Notification'in window)){toast('Non supporté','#E8445A');return;}
+  const p=await Notification.requestPermission();
+  if(p==='granted'){S.notif=true;toast('Notifications activées ✓');persist();render();}
+  else toast('Permission refusée','#E8445A');
+}
+function testNotif(){if(Notification.permission==='granted')new Notification('BudgetQuest 💸',{body:"N'oublie pas de vérifier tes dépenses!"});}
+function resetAll(){
+  if(!confirm('Supprimer toutes les données ?'))return;
+  S.depenses=[];S.xp=0;S.streak=0;S.habits={};S.mood='';S.energy=0;
+  toast('Réinitialisé','#E8445A');persist();render();
 }
 
-function addTask() {
-  const v = state.newTask.trim();
-  if (!v) return;
-  state.tasks.push({ id: Date.now(), text: v, done: false });
-  state.newTask = '';
-  persist(); render();
-}
+// ══════════════════════════════════════════
+//  PWA
+// ══════════════════════════════════════════
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 
-function addDepense() {
-  const { label, amount, cat } = state.form;
-  if (!label || !amount) { showToast('Remplis tous les champs', '#E24B4A'); return; }
-  state.depenses.unshift({ id: Date.now(), cat, label, amount: parseInt(amount), date: today() });
-  state.form = { label:'', amount:'', cat:'food' };
-  showToast('Dépense ajoutée ✓', '#1D9E75');
-  persist(); render();
-}
-
-function removeDepense(id) {
-  state.depenses = state.depenses.filter(d=>d.id!==id);
-  showToast('Supprimée'); persist(); render();
-}
-
-function startEditBudget() {
-  state.editBudget = true;
-  state.tempBudget = String(state.budget);
-  renderDashboard();
-}
-
-function saveBudget() {
-  const v = parseInt(state.tempBudget);
-  if (!isNaN(v) && v>0) { state.budget = v; showToast('Budget mis à jour ✓', '#1D9E75'); }
-  state.editBudget = false;
-  persist(); render();
-}
-
-function setCurrency(code) {
-  state.currency = CURRENCIES.find(c=>c.code===code);
-  showToast('Devise : '+code, '#1D9E75');
-  persist(); render();
-}
-
-async function requestNotif() {
-  if (!('Notification' in window)) { showToast('Non supporté', '#E24B4A'); return; }
-  const p = await Notification.requestPermission();
-  if (p==='granted') { state.notif=true; showToast('Notifications activées ✓'); }
-  else { showToast('Permission refusée', '#E24B4A'); }
-  persist(); render();
-}
-
-function testNotif() {
-  if (Notification.permission==='granted')
-    new Notification('BudgetQuest 💸', { body:"N'oublie pas de vérifier tes dépenses !" });
-}
-
-function disableNotif() {
-  state.notif = false; showToast('Notifications désactivées'); persist(); render();
-}
-
-function resetData() {
-  if (!confirm('Supprimer toutes les données ?')) return;
-  state.depenses=[]; state.xp=0; state.streak=0; state.tasks=JSON.parse(JSON.stringify(DEFAULT_TASKS));
-  showToast('Données réinitialisées', '#E24B4A');
-  persist(); render();
-}
-
-// ─── PWA ────────────────────────────────────────────────
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
-
-// ─── INIT ───────────────────────────────────────────────
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
 render();
 </script>
 </body>
