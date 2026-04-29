@@ -1,0 +1,22 @@
+{
+  "name": "BudgetQuest",
+  "short_name": "BudgetQuest",
+  "description": "Gère tes dépenses et missions du jour",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F0F13",
+  "theme_color": "#7F77DD",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192/7F77DD/ffffff?text=BQ",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512/7F77DD/ffffff?text=BQ",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

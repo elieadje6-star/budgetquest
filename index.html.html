@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BudgetQuest</title>
+  <meta name="description" content="Gère tes dépenses et tes missions du jour" />
+  <meta name="theme-color" content="#7F77DD" />
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0F0F13;
+      color: #F0F0F5;
+      min-height: 100vh;
+    }
+    #root { max-width: 430px; margin: 0 auto; padding-bottom: 80px; }
+
+    .nav {
+      display: flex;
+      background: #1A1A24;
+      border-top: 1px solid #2A2A3A;
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 430px; z-index: 100;
+    }
+    .nav-btn {
+      flex: 1; padding: 10px 0 8px; border: none; background: transparent;
+      cursor: pointer; font-size: 10px; color: #888; display: flex;
+      flex-direction: column; align-items: center; gap: 3px;
+    }
+    .nav-btn.active { color: #7F77DD; }
+    .nav-btn span.icon { font-size: 18px; }
+
+    .page { padding: 1rem; display: none; }
+    .page.active { display: block; }
+
+    .card {
+      background: #1A1A24; border: 1px solid #2A2A3A;
+      border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 12px;
+    }
+    .sec-title {
+      font-size: 11px; font-weight: 600; color: #888;
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px;
+    }
+    .input, .select {
+      width: 100%; padding: 9px 12px; border-radius: 10px;
+      border: 1px solid #2A2A3A; background: #0F0F13; color: #F0F0F5;
+      font-size: 14px; margin-bottom: 8px;
+    }
+    .btn {
+      padding: 10px 18px; border-radius: 10px; border: none;
+      background: #7F77DD; color: #fff; font-size: 14px;
+      font-weight: 500; cursor: pointer; transition: opacity .2s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn.green { background: #1D9E75; }
+    .btn.red { background: #E24B4A; }
+    .btn.gray { background: #555; }
+
+    .progress-track {
+      height: 7px; background: #2A2A3A; border-radius: 99px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 99px; transition: width .4s;
+    }
+
+    .level-card {
+      background: #1A1240; border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 12px;
+    }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .stat-box {
+      background: #0F0F13; border-radius: 10px; padding: 12px 14px;
+    }
+    .stat-box .val { font-size: 20px; font-weight: 500; margin: 4px 0 2px; }
+    .stat-box .lbl { font-size: 11px; color: #888; }
+
+    .task-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .checkbox {
+      width: 22px; height: 22px; border-radius: 6px;
+      border: 1.5px solid #2A2A3A; background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .checkbox.done { background: #7F77DD; border: none; }
+
+    .dep-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid #2A2A3A;
+    }
+    .cat-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .del-btn {
+      background: none; border: none; cursor: pointer;
+      color: #555; font-size: 20px; padding: 0 4px;
+    }
+    .toast {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      padding: 10px 20px; border-radius: 99px; font-size: 13px;
+      font-weight: 500; color: #fff; z-index: 999; white-space: nowrap;
+      display: none;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #2D1A00; color: #EF9F27; font-size: 12px;
+      font-weight: 500; padding: 4px 12px; border-radius: 99px;
+    }
+    .install-step { display: flex; gap: 8px; margin-bottom: 4px; align-items: flex-start; }
+    .install-num { font-size: 11px; color: #7F77DD; font-weight: 600; min-width: 16px; }
+    .install-text { font-size: 12px; color: #888; }
+    .cur-btn {
+      padding: 10px; border-radius: 10px; cursor: pointer;
+      border: 1px solid #2A2A3A; background: #0F0F13;
+      text-align: left; color: #F0F0F5;
+    }
+    .cur-btn.active { border: 2px solid #7F77DD; background: #1A1240; }
+    .cur-btn .cur-sym { font-size: 15px; font-weight: 500; }
+    .cur-btn .cur-name { font-size: 11px; color: #888; }
+    .cur-btn.active .cur-name { color: #AFA9EC; }
+    .tag-actuel {
+      font-size: 11px; background: #EEEDFE; color: #534AB7;
+      padding: 2px 8px; border-radius: 99px; font-weight: 500;
+    }
+    .row-between { display: flex; justify-content: space-between; align-items: center; }
+    .notif-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #1D9E75;
+      display: inline-block; margin-right: 6px;
+    }
+    select option { background: #1A1A24; }
+  </style>
+</head>
+<body>
+<div id="root">
+  <div id="toast" class="toast"></div>
+
+  <!-- PAGES -->
+  <div id="page-dashboard" class="page active"></div>
+  <div id="page-depenses" class="page"></div>
+  <div id="page-historique" class="page"></div>
+  <div id="page-stats" class="page"></div>
+  <div id="page-settings" class="page"></div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <button class="nav-btn active" onclick="goTab('dashboard')">
+      <span class="icon">⊞</span><span>Accueil</span>
+    </button>
+    <button class="nav-btn" onclick="goTab('depenses')">
+      <span class="icon">💸</span><span>Dépenses</span>
+    </button>
+    <button class="nav-btn" onclick="goTab('historique')">
+      <span class="icon">📅</span><span>Historique</span>
+    </button>
+    <button class="nav-btn" onclick="goTab('stats')">
+      <span class="icon">◎</span><span>Stats</span>
+    </button>
+    <button class="nav-btn" onclick="goTab('settings')">
+      <span class="icon">⚙</span><span>Réglages</span>
+    </button>
+  </nav>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────
+const CURRENCIES = [
+  { code:'FCFA', symbol:'FCFA', name:'Franc CFA' },
+  { code:'EUR',  symbol:'€',    name:'Euro' },
+  { code:'USD',  symbol:'$',    name:'Dollar US' },
+  { code:'GBP',  symbol:'£',    name:'Livre Sterling' },
+];
+const CATS = [
+  { id:'food',      label:'Food',      icon:'🍔', color:'#E24B4A' },
+  { id:'transport', label:'Transport', icon:'🚗', color:'#378ADD' },
+  { id:'loisirs',   label:'Loisirs',   icon:'🎮', color:'#7F77DD' },
+  { id:'epargne',   label:'Épargne',   icon:'💰', color:'#1D9E75' },
+  { id:'shopping',  label:'Shopping',  icon:'🛍️', color:'#D4537E' },
+  { id:'autre',     label:'Autre',     icon:'📦', color:'#888780' },
+];
+const LEVELS = [
+  { name:'Novice',    min:0,    color:'#888780' },
+  { name:'Apprenti',  min:100,  color:'#378ADD' },
+  { name:'Confirmé',  min:300,  color:'#7F77DD' },
+  { name:'Expert',    min:600,  color:'#1D9E75' },
+  { name:'Maître',    min:1000, color:'#EF9F27' },
+];
+const DEFAULT_TASKS = [
+  { id:1, text:'Vérifier mon budget du jour', done:false },
+  { id:2, text:'Éviter une dépense inutile',  done:false },
+  { id:3, text:'Mettre de côté 500 FCFA',     done:false },
+  { id:4, text:'Lire 10 min sur la finance',  done:false },
+];
+
+// ─── STATE ──────────────────────────────────────────────
+function load(k, d) { try { const v=localStorage.getItem(k); return v?JSON.parse(v):d; } catch { return d; } }
+function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+
+function today() { return new Date().toISOString().slice(0,10); }
+function monthKey(d) { return d.slice(0,7); }
+function currentMonth() { return today().slice(0,7); }
+
+let state = {
+  tab: 'dashboard',
+  currency: load('bq_currency', CURRENCIES[0]),
+  budget:   load('bq_budget', 50000),
+  depenses: load('bq_depenses', [
+    { id:1, cat:'food',      label:'Déjeuner', amount:2500, date:'2026-04-28' },
+    { id:2, cat:'transport', label:'Taxi',     amount:1500, date:'2026-04-28' },
+    { id:3, cat:'loisirs',   label:'Netflix',  amount:4000, date:'2026-04-27' },
+  ]),
+  tasks:      load('bq_tasks_'+today(), DEFAULT_TASKS),
+  xp:         load('bq_xp', 80),
+  streak:     load('bq_streak', 3),
+  notif:      load('bq_notif', false),
+  notifTime:  load('bq_notif_time', '20:00'),
+  histMonth:  currentMonth(),
+  form:       { label:'', amount:'', cat:'food' },
+  newTask:    '',
+  editBudget: false,
+  tempBudget: '',
+};
+
+function persist() {
+  save('bq_currency',   state.currency);
+  save('bq_budget',     state.budget);
+  save('bq_depenses',   state.depenses);
+  save('bq_tasks_'+today(), state.tasks);
+  save('bq_xp',         state.xp);
+  save('bq_streak',     state.streak);
+  save('bq_notif',      state.notif);
+  save('bq_notif_time', state.notifTime);
+}
+
+// ─── HELPERS ────────────────────────────────────────────
+function getLevel(xp) {
+  let lv = LEVELS[0];
+  LEVELS.forEach(l => { if (xp >= l.min) lv = l; });
+  return lv;
+}
+function getNextLevel(xp) {
+  for (let i = LEVELS.length-1; i >= 0; i--) {
+    if (xp >= LEVELS[i].min) return LEVELS[i+1] || null;
+  }
+  return LEVELS[1];
+}
+function cat(id) { return CATS.find(c => c.id === id) || CATS[5]; }
+function sym() { return state.currency.symbol; }
+function monthDeps() { return state.depenses.filter(d => monthKey(d.date) === currentMonth()); }
+function total() { return monthDeps().reduce((s,d) => s+d.amount, 0); }
+function catTotals(deps) {
+  return CATS.map(c => ({ ...c, total: deps.filter(d=>d.cat===c.id).reduce((s,d)=>s+d.amount,0) }))
+             .filter(c => c.total > 0);
+}
+
+let toastTimer;
+function showToast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color || '#7F77DD';
+  t.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.display = 'none'; }, 2500);
+}
+
+// ─── NAVIGATION ─────────────────────────────────────────
+function goTab(tab) {
+  state.tab = tab;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+tab).classList.add('active');
+  const tabs = ['dashboard','depenses','historique','stats','settings'];
+  document.querySelectorAll('.nav-btn')[tabs.indexOf(tab)].classList.add('active');
+  render();
+}
+
+// ─── RENDER ─────────────────────────────────────────────
+function render() {
+  renderDashboard();
+  renderDepenses();
+  renderHistorique();
+  renderStats();
+  renderSettings();
+}
+
+// ── DASHBOARD ───────────────────────────────────────────
+function renderDashboard() {
+  const xp = state.xp;
+  const lv = getLevel(xp), nl = getNextLevel(xp);
+  const xpPct = nl ? Math.round(((xp-lv.min)/(nl.min-lv.min))*100) : 100;
+  const tasks = state.tasks;
+  const done = tasks.filter(t=>t.done).length;
+  const tPct = tasks.length ? Math.round((done/tasks.length)*100) : 0;
+  const t = total(), b = state.budget, r = b-t;
+  const bPct = Math.min(100, Math.round((t/b)*100));
+  const bColor = bPct>80?'#E24B4A':bPct>60?'#EF9F27':'#1D9E75';
+  const dateStr = new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  document.getElementById('page-dashboard').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div>
+        <div style="font-size:18px;font-weight:500">Bonjour 👋</div>
+        <div style="font-size:12px;color:#888">${dateStr}</div>
+      </div>
+      <div class="badge">🔥 ${state.streak} jours</div>
+    </div>
+
+    <div class="level-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:11px;color:#AFA9EC;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Niveau actuel</div>
+          <div style="font-size:20px;font-weight:500;color:#fff">${lv.name}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:500;color:#EF9F27">${xp} XP</div>
+          ${nl ? `<div style="font-size:11px;color:#AFA9EC">/${nl.min} → ${nl.name}</div>` : ''}
+        </div>
+      </div>
+      <div style="height:6px;background:rgba(255,255,255,.15);border-radius:99px;margin-top:12px;overflow:hidden">
+        <div style="height:100%;width:${xpPct}%;background:#EF9F27;border-radius:99px;transition:width .4s"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="sec-title" style="margin:0">Missions du jour</div>
+        <div style="font-size:11px;font-weight:500;color:#7F77DD">${done}/${tasks.length} · +25 XP</div>
+      </div>
+      <div class="progress-track" style="margin-bottom:14px">
+        <div class="progress-fill" style="width:${tPct}%;background:#7F77DD"></div>
+      </div>
+      ${tasks.map(t => `
+        <div class="task-row">
+          <div class="checkbox ${t.done?'done':''}" onclick="toggleTask(${t.id})">
+            ${t.done ? '<span style="color:#fff;font-size:12px">✓</span>' : ''}
+          </div>
+          <span style="font-size:14px;flex:1;color:${t.done?'#888':'#F0F0F5'};text-decoration:${t.done?'line-through':'none'}">${t.text}</span>
+        </div>
+      `).join('')}
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input class="input" id="newTaskInput" style="flex:1;margin:0" placeholder="Nouvelle mission..." value="${state.newTask}"
+          oninput="state.newTask=this.value" onkeydown="if(event.key==='Enter')addTask()" />
+        <button class="btn" onclick="addTask()">+</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title">Budget du mois</div>
+      <div class="grid2">
+        <div class="stat-box">
+          <div class="lbl">Budget</div>
+          <div class="val" style="font-size:15px;cursor:pointer" onclick="startEditBudget()">
+            ${state.editBudget
+              ? `<div style="display:flex;gap:4px"><input id="budgetInput" class="input" style="margin:0;padding:4px 8px;font-size:13px" value="${state.tempBudget}"
+                  oninput="state.tempBudget=this.value" onkeydown="if(event.key==='Enter')saveBudget()" />
+                 <button class="btn" style="padding:4px 8px;font-size:12px" onclick="saveBudget()">✓</button></div>`
+              : `${state.budget.toLocaleString()} <span style="font-size:11px;color:#888">${sym()} ✏️</span>`
+            }
+          </div>
+        </div>
+        <div class="stat-box" style="${r<0?'background:#2A0A0A':''}">
+          <div class="lbl">Reste</div>
+          <div class="val" style="font-size:15px;color:${r<0?'#E24B4A':'#F0F0F5'}">${r.toLocaleString()} <span style="font-size:11px;color:#888">${sym()}</span></div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px">
+        <span>Dépensé ce mois</span><span style="font-weight:500">${bPct}%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" style="width:${bPct}%;background:${bColor}"></div>
+      </div>
+    </div>
+  `;
+  if (state.editBudget) { setTimeout(()=>{ const i=document.getElementById('budgetInput'); if(i)i.focus(); },10); }
+}
+
+// ── DÉPENSES ────────────────────────────────────────────
+function renderDepenses() {
+  const deps = state.depenses;
+  const md = monthDeps(), t = total();
+  const cats = catTotals(md);
+
+  document.getElementById('page-depenses').innerHTML = `
+    <div style="font-size:18px;font-weight:500;margin-bottom:16px">Mes dépenses</div>
+    <div class="card">
+      <div class="sec-title">Nouvelle dépense</div>
+      <input class="input" placeholder="Description (Taxi, Déjeuner...)" id="fLabel" value="${state.form.label}" oninput="state.form.label=this.value" />
+      <input class="input" type="number" placeholder="Montant (${sym()})" id="fAmount" value="${state.form.amount}" oninput="state.form.amount=this.value" />
+      <select class="select" id="fCat" onchange="state.form.cat=this.value">
+        ${CATS.map(c=>`<option value="${c.id}" ${state.form.cat===c.id?'selected':''}>${c.icon} ${c.label}</option>`).join('')}
+      </select>
+      <button class="btn" style="width:100%" onclick="addDepense()">Ajouter la dépense</button>
+    </div>
+
+    ${cats.length>0 ? `
+    <div class="card">
+      <div class="sec-title">Répartition du mois</div>
+      ${cats.map(c=>`
+        <div style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+            <span>${c.icon} ${c.label}</span>
+            <span style="font-weight:500">${c.total.toLocaleString()} ${sym()}</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width:${t?Math.round((c.total/t)*100):0}%;background:${c.color}"></div>
+          </div>
+        </div>
+      `).join('')}
+    </div>` : ''}
+
+    <div class="card">
+      <div class="sec-title">Récent</div>
+      ${deps.length===0 ? '<div style="font-size:13px;color:#888;text-align:center;padding:20px">Aucune dépense</div>' : ''}
+      ${deps.slice(0,30).map(d=>{
+        const c = cat(d.cat);
+        return `<div class="dep-row">
+          <div class="cat-icon" style="background:${c.color}22">${c.icon}</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:500">${d.label}</div>
+            <div style="font-size:11px;color:#888">${c.label} · ${d.date}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:14px;font-weight:500;color:#E24B4A">-${d.amount.toLocaleString()}</div>
+            <div style="font-size:11px;color:#888">${sym()}</div>
+          </div>
+          <button class="del-btn" onclick="removeDepense(${d.id})">×</button>
+        </div>`;
+      }).join('')}
+      ${deps.length>0?`
+        <div style="display:flex;justify-content:space-between;padding-top:12px;font-weight:500">
+          <span>Total ce mois</span>
+          <span style="color:#E24B4A">${t.toLocaleString()} ${sym()}</span>
+        </div>`:''}
+    </div>
+  `;
+}
+
+// ── HISTORIQUE ──────────────────────────────────────────
+function renderHistorique() {
+  const allMonths = [...new Set(state.depenses.map(d=>monthKey(d.date)))].sort().reverse();
+  if (!allMonths.includes(state.histMonth)) state.histMonth = currentMonth();
+  const hd = state.depenses.filter(d=>monthKey(d.date)===state.histMonth);
+  const ht = hd.reduce((s,d)=>s+d.amount,0);
+  const cats = catTotals(hd);
+
+  document.getElementById('page-historique').innerHTML = `
+    <div style="font-size:18px;font-weight:500;margin-bottom:16px">Historique mensuel</div>
+    <select class="select" onchange="state.histMonth=this.value;renderHistorique()">
+      ${(allMonths.length?allMonths:[currentMonth()]).map(m=>`<option value="${m}" ${state.histMonth===m?'selected':''}>${m}</option>`).join('')}
+    </select>
+
+    <div class="grid2">
+      <div class="stat-box"><div class="lbl">Total dépensé</div><div class="val" style="color:#E24B4A">${ht.toLocaleString()}</div><div class="lbl">${sym()}</div></div>
+      <div class="stat-box"><div class="lbl">Transactions</div><div class="val" style="color:#7F77DD">${hd.length}</div><div class="lbl">entrées</div></div>
+    </div>
+
+    ${cats.length>0?`
+    <div class="card">
+      <div class="sec-title">Par catégorie</div>
+      ${cats.map(c=>`
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <div class="cat-icon" style="background:${c.color}22;width:32px;height:32px">${c.icon}</div>
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px">
+              <span style="font-weight:500">${c.label}</span>
+              <span>${ht?Math.round((c.total/ht)*100):0}%</span>
+            </div>
+            <div class="progress-track" style="height:5px">
+              <div class="progress-fill" style="width:${ht?Math.round((c.total/ht)*100):0}%;background:${c.color}"></div>
+            </div>
+          </div>
+          <div style="font-size:13px;font-weight:500;min-width:70px;text-align:right">${c.total.toLocaleString()} ${sym()}</div>
+        </div>
+      `).join('')}
+    </div>`:''}
+
+    <div class="card">
+      <div class="sec-title">Toutes les transactions</div>
+      ${hd.length===0?'<div style="font-size:13px;color:#888;text-align:center;padding:20px">Aucune dépense ce mois</div>':''}
+      ${hd.map(d=>{
+        const c=cat(d.cat);
+        return `<div class="dep-row">
+          <span style="font-size:18px">${c.icon}</span>
+          <div style="flex:1"><div style="font-size:13px;font-weight:500">${d.label}</div><div style="font-size:11px;color:#888">${d.date}</div></div>
+          <span style="font-size:13px;font-weight:500;color:#E24B4A">-${d.amount.toLocaleString()} ${sym()}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+// ── STATS ────────────────────────────────────────────────
+function renderStats() {
+  const t=total(), b=state.budget, r=b-t;
+  const cats=catTotals(monthDeps());
+  document.getElementById('page-stats').innerHTML = `
+    <div style="font-size:18px;font-weight:500;margin-bottom:16px">Statistiques</div>
+    <div class="grid2">
+      <div class="stat-box"><div class="lbl">Dépensé ce mois</div><div class="val" style="color:#E24B4A">${t.toLocaleString()}</div><div class="lbl">${sym()}</div></div>
+      <div class="stat-box"><div class="lbl">Reste</div><div class="val" style="color:${r<0?'#E24B4A':'#1D9E75'}">${r.toLocaleString()}</div><div class="lbl">${sym()}</div></div>
+      <div class="stat-box"><div class="lbl">Transactions</div><div class="val" style="color:#7F77DD">${state.depenses.length}</div><div class="lbl">entrées</div></div>
+      <div class="stat-box"><div class="lbl">XP total</div><div class="val" style="color:#EF9F27">${state.xp}</div><div class="lbl">points</div></div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title">Répartition ce mois</div>
+      ${cats.length===0?'<div style="font-size:13px;color:#888;text-align:center;padding:16px">Aucune dépense</div>':''}
+      ${cats.map(c=>`
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <div class="cat-icon" style="background:${c.color}22">${c.icon}</div>
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+              <span style="font-weight:500">${c.label}</span>
+              <span>${t?Math.round((c.total/t)*100):0}%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:${t?Math.round((c.total/t)*100):0}%;background:${c.color}"></div>
+            </div>
+          </div>
+          <div style="font-size:13px;font-weight:500;min-width:72px;text-align:right">${c.total.toLocaleString()} ${sym()}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="card">
+      <div class="sec-title">Arbre des niveaux</div>
+      ${LEVELS.map((l,i)=>{
+        const active = state.xp>=l.min && state.xp<(LEVELS[i+1]?.min??Infinity);
+        return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:10px;height:10px;border-radius:50%;background:${state.xp>=l.min?l.color:'#2A2A3A'};flex-shrink:0"></div>
+          <span style="flex:1;font-size:13px;color:${state.xp>=l.min?'#F0F0F5':'#888'};font-weight:${state.xp>=l.min?500:400}">${l.name}</span>
+          <span style="font-size:12px;color:#888">${l.min} XP</span>
+          ${active?'<span class="tag-actuel">actuel</span>':''}
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+// ── SETTINGS ─────────────────────────────────────────────
+function renderSettings() {
+  document.getElementById('page-settings').innerHTML = `
+    <div style="font-size:18px;font-weight:500;margin-bottom:16px">Réglages</div>
+
+    <div class="card">
+      <div class="sec-title">Devise</div>
+      <div class="grid2">
+        ${CURRENCIES.map(c=>`
+          <button class="cur-btn ${state.currency.code===c.code?'active':''}" onclick="setCurrency('${c.code}')">
+            <div class="cur-sym" style="color:${state.currency.code===c.code?'#AFA9EC':'#F0F0F5'}">${c.symbol}</div>
+            <div class="cur-name">${c.name}</div>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title">Notifications</div>
+      <div style="font-size:13px;color:#888;margin-bottom:12px">Reçois un rappel quotidien pour vérifier tes dépenses.</div>
+      ${!state.notif ? `
+        <button class="btn" onclick="requestNotif()">Activer les notifications</button>
+      ` : `
+        <div style="margin-bottom:12px">
+          <span class="notif-dot"></span>
+          <span style="font-size:13px;color:#1D9E75;font-weight:500">Notifications activées</span>
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:12px;color:#888;margin-bottom:6px">Heure du rappel</div>
+          <input type="time" class="input" value="${state.notifTime}" oninput="state.notifTime=this.value;persist()" />
+        </div>
+        <button class="btn green" onclick="testNotif()" style="margin-right:8px">Tester</button>
+        <button class="btn gray" onclick="disableNotif()">Désactiver</button>
+      `}
+    </div>
+
+    <div class="card">
+      <div class="sec-title">Installer l'application</div>
+      <div style="font-size:13px;color:#888;margin-bottom:14px;line-height:1.6">
+        Installe BudgetQuest sur ton bureau ou téléphone pour y accéder sans navigateur.
+      </div>
+      ${[
+        { icon:'🖥️', title:'PC / Mac (Chrome)', steps:["Ouvre l'app dans Chrome","Clique sur l'icône ⊕ dans la barre d'adresse","Clique 'Installer'"] },
+        { icon:'📱', title:'Android (Chrome)',   steps:["Ouvre l'app dans Chrome","Menu ⋮ → 'Ajouter à l'écran d'accueil'","Confirme l'installation"] },
+        { icon:'🍎', title:'iPhone (Safari)',    steps:["Ouvre l'app dans Safari","Appuie sur le bouton Partager ⬆️","Choisis 'Sur l'écran d'accueil'"] },
+      ].map(d=>`
+        <div style="margin-bottom:14px">
+          <div style="font-size:13px;font-weight:500;margin-bottom:6px">${d.icon} ${d.title}</div>
+          ${d.steps.map((s,i)=>`
+            <div class="install-step">
+              <span class="install-num">${i+1}.</span>
+              <span class="install-text">${s}</span>
+            </div>
+          `).join('')}
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="card">
+      <div class="sec-title">Danger zone</div>
+      <button class="btn red" onclick="resetData()">Réinitialiser toutes les données</button>
+    </div>
+  `;
+}
+
+// ─── ACTIONS ────────────────────────────────────────────
+function toggleTask(id) {
+  const t = state.tasks.find(t=>t.id===id);
+  if (!t) return;
+  if (!t.done) { state.xp += 25; showToast('+25 XP ! Bien joué 🎉', '#EF9F27'); }
+  else { state.xp = Math.max(0, state.xp-25); }
+  t.done = !t.done;
+  persist(); render();
+}
+
+function addTask() {
+  const v = state.newTask.trim();
+  if (!v) return;
+  state.tasks.push({ id: Date.now(), text: v, done: false });
+  state.newTask = '';
+  persist(); render();
+}
+
+function addDepense() {
+  const { label, amount, cat } = state.form;
+  if (!label || !amount) { showToast('Remplis tous les champs', '#E24B4A'); return; }
+  state.depenses.unshift({ id: Date.now(), cat, label, amount: parseInt(amount), date: today() });
+  state.form = { label:'', amount:'', cat:'food' };
+  showToast('Dépense ajoutée ✓', '#1D9E75');
+  persist(); render();
+}
+
+function removeDepense(id) {
+  state.depenses = state.depenses.filter(d=>d.id!==id);
+  showToast('Supprimée'); persist(); render();
+}
+
+function startEditBudget() {
+  state.editBudget = true;
+  state.tempBudget = String(state.budget);
+  renderDashboard();
+}
+
+function saveBudget() {
+  const v = parseInt(state.tempBudget);
+  if (!isNaN(v) && v>0) { state.budget = v; showToast('Budget mis à jour ✓', '#1D9E75'); }
+  state.editBudget = false;
+  persist(); render();
+}
+
+function setCurrency(code) {
+  state.currency = CURRENCIES.find(c=>c.code===code);
+  showToast('Devise : '+code, '#1D9E75');
+  persist(); render();
+}
+
+async function requestNotif() {
+  if (!('Notification' in window)) { showToast('Non supporté', '#E24B4A'); return; }
+  const p = await Notification.requestPermission();
+  if (p==='granted') { state.notif=true; showToast('Notifications activées ✓'); }
+  else { showToast('Permission refusée', '#E24B4A'); }
+  persist(); render();
+}
+
+function testNotif() {
+  if (Notification.permission==='granted')
+    new Notification('BudgetQuest 💸', { body:"N'oublie pas de vérifier tes dépenses !" });
+}
+
+function disableNotif() {
+  state.notif = false; showToast('Notifications désactivées'); persist(); render();
+}
+
+function resetData() {
+  if (!confirm('Supprimer toutes les données ?')) return;
+  state.depenses=[]; state.xp=0; state.streak=0; state.tasks=JSON.parse(JSON.stringify(DEFAULT_TASKS));
+  showToast('Données réinitialisées', '#E24B4A');
+  persist(); render();
+}
+
+// ─── PWA ────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+// ─── INIT ───────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
